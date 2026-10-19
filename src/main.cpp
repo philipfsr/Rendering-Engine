@@ -6,6 +6,7 @@
 
 GLFWwindow* window;
 int height, width;
+Scene scene;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -38,6 +39,8 @@ bool initialize() {
 
     glfwSetKeyCallback(window, key_callback);
 
+    scene = Scene();
+
     return true;
 }
 
@@ -56,7 +59,7 @@ int main() {
 
         
         glfwPollEvents();
-        renderMetalFrame(window);
+        renderMetalFrame(window, scene);
     }
 
 

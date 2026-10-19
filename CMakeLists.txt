@@ -22,6 +22,10 @@ target_sources(RenderingEngine
     PRIVATE
         src/main.cpp
         src/platform/macos/MetalRenderer.mm
+        src/geometry/Object.cpp
+        src/geometry/Vec3D.cpp
+        src/scene/Camera.cpp
+        src/scene/Scene.cpp
 )
 
 target_link_libraries(RenderingEngine
@@ -30,6 +34,11 @@ target_link_libraries(RenderingEngine
         "-framework Cocoa"
         "-framework Metal"
         "-framework QuartzCore"
+)
+
+target_include_directories(RenderingEngine
+    PRIVATE
+        src
 )
 
 target_compile_options(RenderingEngine 
