@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 
-project(RenderingEngine LANGUAGES CXX)
+project(RenderingEngine LANGUAGES CXX OBJCXX)
 
 include(FetchContent)
 
@@ -21,9 +21,18 @@ add_executable(RenderingEngine)
 target_sources(RenderingEngine
     PRIVATE
         src/main.cpp
+        src/platform/macos/MetalRenderer.mm
 )
 
 target_link_libraries(RenderingEngine
     PRIVATE
         glfw
+        "-framework Cocoa"
+        "-framework Metal"
+        "-framework QuartzCore"
+)
+
+target_compile_options(RenderingEngine 
+    PRIVATE
+        "$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>"
 )

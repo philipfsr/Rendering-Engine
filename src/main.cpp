@@ -1,7 +1,11 @@
+#define GLFW_INCLUDE_NONE
 #include <iostream>
 #include <GLFW/glfw3.h>
 
+#include "platform/macos/MetalRenderer.h"
+
 GLFWwindow* window;
+int height, width;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -9,35 +13,53 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-void initialize() {
+bool initialize() {
+    
+    height = 480;
+    width = 640;
+        
 
-    //GLFW----------
-    std::cout << "initializing glfw./n";
+    std::cout << "initializing glfw.\n";
     if(!glfwInit()) {
-        //initionalization failed
+        return false;
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-    window = glfwCreateWindow(640, 480, "Custom Rendering Engine", nullptr, nullptr);
+    window = glfwCreateWindow(width, height, "Custom Rendering Engine", nullptr, nullptr);
     if(!window) {
         glfwTerminate();
+        return false;
+    }
+    if(!initializeMetal(window)) {
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return false;
     }
 
     glfwSetKeyCallback(window, key_callback);
 
-    //-------------
+    return true;
 }
 
 int main() {
 
-    std::cout << "Rendering Engine started./n";
+    std::cout << "Rendering Engine started.\n";
 
-    initialize();
-
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
+    if(!initialize()) {
+        return 1;
     }
+
+
+    //rendering loop
+    while (!glfwWindowShouldClose(window)) {
+
+
+        
+        glfwPollEvents();
+        renderMetalFrame(window);
+    }
+
+
 
     glfwDestroyWindow(window);
     glfwTerminate();
