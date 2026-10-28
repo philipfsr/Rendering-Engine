@@ -16,12 +16,12 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(glfw)
 
+
 add_executable(RenderingEngine)
 
 target_sources(RenderingEngine
     PRIVATE
         src/main.cpp
-        src/platform/macos/MetalRenderer.mm
         src/geometry/Object.cpp
         src/geometry/Vec3D.cpp
         src/scene/Camera.cpp
@@ -31,10 +31,31 @@ target_sources(RenderingEngine
 target_link_libraries(RenderingEngine
     PRIVATE
         glfw
+)
+
+if(APPLE)
+
+    target_compile_definitions(RenderingEngine PRIVATE USE_METAL)
+    target_link_libraries(RenderingEngine
+    PRIVATE
         "-framework Cocoa"
         "-framework Metal"
         "-framework QuartzCore"
-)
+    )
+    target_sources(RenderingEngine
+    PRIVATE
+        src/platform/macos/MetalRenderer.mm
+    )
+
+elseif(WIN32)
+
+    target_compile_definitions(RenderingEngine PRIVATE USE_VULKAN)
+    target_sources(RenderingEngine
+    PRIVATE
+        src/platform/windows/VulkanRenderer.cpp
+    )
+
+endif()
 
 target_include_directories(RenderingEngine
     PRIVATE

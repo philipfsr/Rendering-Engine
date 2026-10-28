@@ -2,7 +2,13 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 
-#include "platform/macos/MetalRenderer.h"
+#if defined(USE_METAL)
+    #include "platform/macos/MetalRenderer.h"
+#elif defined(USE_VULKAN)
+    #include "platform/windows/VulkanRenderer.h"
+#endif
+
+#include "scene/Scene.h"
 
 GLFWwindow* window;
 int height, width;
@@ -31,11 +37,17 @@ bool initialize() {
         glfwTerminate();
         return false;
     }
-    if(!initializeMetal(window)) {
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return false;
-    }
+    #if defined(USE_METAL)
+        std::cout << "initializing metal.\n";
+        if(!initializeMetal(window)) {
+            glfwDestroyWindow(window);
+            glfwTerminate();
+            return false;
+        }
+    #elif defined(USE_VULKAN)
+        std::cout << "initializing vulkan.\n";
+    #endif
+
 
     glfwSetKeyCallback(window, key_callback);
 
@@ -59,7 +71,11 @@ int main() {
 
         
         glfwPollEvents();
-        renderMetalFrame(window, scene);
+        #if defined(USE_METAL)
+            renderMetalFrame(window, scene);
+        #elif defined(USE_VULKAN)
+            renderVulkanFrame(window, scene);
+        #endif
     }
 
 

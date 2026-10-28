@@ -29,7 +29,7 @@ Vec3D Vec3D::translated(float x, float y, float z) const {
 }
 
 Vec3D Vec3D::translated(Vec3D vec) const {
-
+    return Vec3D(this->x + vec.x, this->y + vec.y, this->z + vec.z);
 }
 
 Vec3D Vec3D::cross(float x, float y, float z) const {
