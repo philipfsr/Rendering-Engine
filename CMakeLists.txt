@@ -49,6 +49,8 @@ if(APPLE)
 
 elseif(WIN32)
 
+    find_package(Vulkan REQUIRED)
+    target_link_libraries(RenderingEngine PRIVATE Vulkan::Vulkan)
     target_compile_definitions(RenderingEngine PRIVATE USE_VULKAN)
     target_sources(RenderingEngine
     PRIVATE

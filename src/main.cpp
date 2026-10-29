@@ -26,7 +26,7 @@ bool initialize() {
     width = 640;
         
 
-    std::cout << "initializing glfw.\n";
+    std::cout << "initializing glfw\n";
     if(!glfwInit()) {
         return false;
     }
@@ -37,15 +37,21 @@ bool initialize() {
         glfwTerminate();
         return false;
     }
+
     #if defined(USE_METAL)
-        std::cout << "initializing metal.\n";
+        std::cout << "initializing metal\n";
         if(!initializeMetal(window)) {
             glfwDestroyWindow(window);
             glfwTerminate();
             return false;
         }
     #elif defined(USE_VULKAN)
-        std::cout << "initializing vulkan.\n";
+        std::cout << "initializing vulkan\n";
+        if(!initializeVulkan()) {
+            glfwDestroyWindow(window);
+            glfwTerminate();
+            return false;
+        }
     #endif
 
 
@@ -58,7 +64,7 @@ bool initialize() {
 
 int main() {
 
-    std::cout << "Rendering Engine started.\n";
+    std::cout << "Rendering Engine started\n";
 
     if(!initialize()) {
         return 1;
@@ -78,7 +84,9 @@ int main() {
         #endif
     }
 
-
+    #if defined(USE_VULKAN)
+        cleanupVulkan();
+    #endif
 
     glfwDestroyWindow(window);
     glfwTerminate();
