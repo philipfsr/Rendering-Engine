@@ -3,6 +3,8 @@
 #import <QuartzCore/CAMetalLayer.h>
 
 #include "MetalRenderer.h"
+#include "geomerty/"
+#include "scene/Material.h"
 
 static CAMetalLayer* layer;
 static id<MTLCommandQueue> cmdQueue;
@@ -37,6 +39,9 @@ bool initializeMetal(GLFWwindow* window) {
 }
 
 void renderMetalFrame(GLFWwindow* window, Scene scene) {
+
+    Triangle tri = Triangle(Vertex(0, 0, 0), Vertex(10, 0, 0), Vertex(5, 5, 0), Material());
+
     @autoreleasepool { 
 
         int width, height;

@@ -1,7 +1,8 @@
 #pragma once
 #include "scene/Material.h"
+#include "geometry/Vertex.h"
 
 struct Triangle {
-    int a, b, c;
+    Vertex a, b, c;
     Material material;
 };
