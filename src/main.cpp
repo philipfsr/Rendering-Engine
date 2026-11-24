@@ -57,9 +57,11 @@ bool initialize() {
 
     glfwSetKeyCallback(window, key_callback);
 
-    scene = Scene();
-
     return true;
+}
+
+bool loadScene(Scene* scene) {
+    return scene->loadObjects();
 }
 
 int main() {
@@ -67,6 +69,10 @@ int main() {
     std::cout << "Rendering Engine started\n";
 
     if(!initialize()) {
+        return 1;
+    }
+
+    if(!loadScene(&scene)) {
         return 1;
     }
 
@@ -78,7 +84,7 @@ int main() {
         
         glfwPollEvents();
         #if defined(USE_METAL)
-            renderMetalFrame(window, scene);
+            renderMetalFrame(window, &scene);
         #elif defined(USE_VULKAN)
             renderVulkanFrame(window, scene);
         #endif

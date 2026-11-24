@@ -1,8 +1,8 @@
 #pragma once
 #include "scene/Material.h"
-#include "geometry/Vertex.h"
+#include <cstdint>
 
 struct Triangle {
-    Vertex a, b, c;
+    std::uint32_t a, b, c;
     Material material;
 };

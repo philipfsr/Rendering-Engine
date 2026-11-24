@@ -8,4 +8,8 @@ struct Scene {
     Camera camera;
     std::vector<Object> objects;
 
+    Scene();
+
+    bool loadObjects();
+
 };

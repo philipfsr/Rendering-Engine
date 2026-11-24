@@ -1,6 +1,7 @@
 #include "Object.h"
 
 
+
 void Object::translate(float x, float y, float z) {
 
 }

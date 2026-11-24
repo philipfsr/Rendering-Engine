@@ -6,10 +6,10 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-#include "scene/Scene.cpp"
+#include "scene/Scene.h"
 
 struct GLFWwindow;
 
 bool initializeMetal(GLFWwindow* window);
 
-void renderMetalFrame(GLFWwindow* window, Scene scene);
+void renderMetalFrame(GLFWwindow* window, Scene* scene);

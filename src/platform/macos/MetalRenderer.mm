@@ -3,15 +3,17 @@
 #import <QuartzCore/CAMetalLayer.h>
 
 #include "MetalRenderer.h"
-#include "geomerty/"
+#include "geometry/Triangle.h"
 #include "scene/Material.h"
 
 static CAMetalLayer* layer;
 static id<MTLCommandQueue> cmdQueue;
+id<MTLDevice> device;
+id<MTLBuffer> triangleVertexBuffer;
 
 bool initializeMetal(GLFWwindow* window) {
 
-    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    device = MTLCreateSystemDefaultDevice();
     if(device == nullptr) {
         return false;
     }
@@ -38,9 +40,16 @@ bool initializeMetal(GLFWwindow* window) {
     return true;
 }
 
-void renderMetalFrame(GLFWwindow* window, Scene scene) {
+void renderMetalFrame(GLFWwindow* window, Scene* scene) {
 
-    Triangle tri = Triangle(Vertex(0, 0, 0), Vertex(10, 0, 0), Vertex(5, 5, 0), Material());
+    if(scene->objects.empty()) {return;}
+
+    const auto& vertices = scene->objects[0].vertices;
+    if(vertices.empty()) {return;}
+
+    triangleVertexBuffer = [device newBufferWithBytes:vertices.data()
+                                    length:vertices.size() * sizeof(Vertex)
+                                    options:MTLResourceStorageModeShared];
 
     @autoreleasepool { 
 
@@ -56,9 +65,7 @@ void renderMetalFrame(GLFWwindow* window, Scene scene) {
         }
 
         id<CAMetalDrawable> drawable = [layer nextDrawable];
-        if(drawable == nil) {
-            return;
-        }
+        if(drawable == nil) {return;}
 
         id<MTLCommandBuffer> cmdBuffer = [cmdQueue commandBuffer];
 
