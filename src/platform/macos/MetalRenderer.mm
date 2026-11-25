@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#include <cstdint>
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
@@ -9,9 +10,16 @@
 static CAMetalLayer* layer;
 static id<MTLCommandQueue> cmdQueue;
 id<MTLDevice> device;
-id<MTLBuffer> triangleVertexBuffer;
+//id<MTLBuffer> triangleVertexBuffer;
+id<MTLBuffer> vertexBuffer;
+id<MTLBuffer> triangleBuffer;
+id<MTLRenderPipelineState> pipelineState;
 
-bool initializeMetal(GLFWwindow* window) {
+std::vector<Vertex> vertices;
+std::vector<Triangle> triangles;
+
+
+bool initializeMetal(GLFWwindow* window, Scene* scene) {
 
     device = MTLCreateSystemDefaultDevice();
     if(device == nullptr) {
@@ -26,9 +34,27 @@ bool initializeMetal(GLFWwindow* window) {
     layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 
     cmdQueue = [device newCommandQueue];
-    if(cmdQueue == nil) {
-        return false;
-    }
+    if(cmdQueue == nil) {return false;}
+
+    id<MTLLibrary> library = [device newDefaultLibrary];
+
+    id<MTLFunction> vertexShader = [library newFunctionWithName:@"vertexShader"];
+    id<MTLFunction> fragmentShader = [library newFunctionWithName:@"fragmentShader"];
+
+    if(fragmentShader == nil || vertexShader == nil) {return false;}
+
+    MTLRenderPipelineDescriptor* pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    pipelineDescriptor.label = @"Triangle Renderer";
+    pipelineDescriptor.vertexFunction = vertexShader;
+    pipelineDescriptor.fragmentFunction = fragmentShader;
+    if(pipelineDescriptor == nil) {return false;}
+    MTLPixelFormat pixelFormat = layer.pixelFormat;
+    pipelineDescriptor.colorAttachments[0].pixelFormat = pixelFormat;
+
+    NSError* error = nil;
+    pipelineState = [device newRenderPipelineStateWithDescriptor:pipelineDescriptor error:&error];
+
+    if(pipelineState == nil) {return false;}
 
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
@@ -36,6 +62,35 @@ bool initializeMetal(GLFWwindow* window) {
 
     [view setWantsLayer:YES];
     [view setLayer:layer];
+
+    vertices.clear();
+    triangles.clear();
+
+    for(const Object& object : scene->objects) {
+        uint32_t offset = vertices.size();
+
+        for(const Vertex& vertex : object.vertices) {
+            vertices.push_back(vertex);
+        }
+
+        for(Triangle triangle : object.triangles) {
+            triangles.push_back(Triangle{triangle.a + offset, triangle.b + offset, triangle.c + offset, triangle.material});
+        }
+    }
+
+    vertexBuffer = [
+        device
+        newBufferWithBytes:vertices.data()
+        length:vertices.size() * sizeof(Vertex)
+        options:MTLResourceStorageModeShared
+    ];
+
+    triangleBuffer = [
+        device
+        newBufferWithBytes:triangles.data()
+        length:triangles.size() * sizeof(Triangle)
+        options:MTLResourceStorageModeShared
+    ];
 
     return true;
 }
@@ -47,10 +102,10 @@ void renderMetalFrame(GLFWwindow* window, Scene* scene) {
     const auto& vertices = scene->objects[0].vertices;
     if(vertices.empty()) {return;}
 
-    triangleVertexBuffer = [device newBufferWithBytes:vertices.data()
+    /*triangleVertexBuffer = [device newBufferWithBytes:vertices.data()
                                     length:vertices.size() * sizeof(Vertex)
                                     options:MTLResourceStorageModeShared];
-
+    */
     @autoreleasepool { 
 
         int width, height;

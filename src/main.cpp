@@ -40,7 +40,7 @@ bool initialize() {
 
     #if defined(USE_METAL)
         std::cout << "initializing metal\n";
-        if(!initializeMetal(window)) {
+        if(!initializeMetal(window, &scene)) {
             glfwDestroyWindow(window);
             glfwTerminate();
             return false;
@@ -68,11 +68,11 @@ int main() {
 
     std::cout << "Rendering Engine started\n";
 
-    if(!initialize()) {
+    if(!loadScene(&scene)) {
         return 1;
     }
 
-    if(!loadScene(&scene)) {
+    if(!initialize()) {
         return 1;
     }
 

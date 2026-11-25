@@ -10,6 +10,6 @@
 
 struct GLFWwindow;
 
-bool initializeMetal(GLFWwindow* window);
+bool initializeMetal(GLFWwindow* window, Scene* scene);
 
 void renderMetalFrame(GLFWwindow* window, Scene* scene);
