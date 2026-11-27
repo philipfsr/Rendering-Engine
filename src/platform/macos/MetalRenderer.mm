@@ -1,8 +1,9 @@
 #import <Cocoa/Cocoa.h>
-#include <cstdint>
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
+#include <cstdint>
+#include <iostream>
 #include "MetalRenderer.h"
 #include "geometry/Triangle.h"
 #include "scene/Material.h"
@@ -13,7 +14,7 @@ id<MTLDevice> device;
 //id<MTLBuffer> triangleVertexBuffer;
 id<MTLBuffer> vertexBuffer;
 id<MTLBuffer> triangleBuffer;
-id<MTLRenderPipelineState> pipelineState;
+id<MTLComputePipelineState> pipelineState;
 
 std::vector<Vertex> vertices;
 std::vector<Triangle> triangles;
@@ -38,23 +39,37 @@ bool initializeMetal(GLFWwindow* window, Scene* scene) {
 
     id<MTLLibrary> library = [device newDefaultLibrary];
 
-    id<MTLFunction> vertexShader = [library newFunctionWithName:@"vertexShader"];
-    id<MTLFunction> fragmentShader = [library newFunctionWithName:@"fragmentShader"];
+    if (library == nil) {
+        NSLog(@"No Metal-Shader-Library found");
+        return false;
+    }
+    std::cout << "Loading Shaders\n";
+    //id<MTLFunction> vertexShader = [library newFunctionWithName:@"vertexShader"];
+    //id<MTLFunction> fragmentShader = [library newFunctionWithName:@"fragmentShader"];
+    id<MTLFunction> computeShader = [library newFunctionWithName:@"computeShader"];
 
-    if(fragmentShader == nil || vertexShader == nil) {return false;}
+    if(computeShader == nil){
+        NSLog(@"Could not create the compute shader");
+        return false;
+    }
+
+    //if(fragmentShader == nil || vertexShader == nil) {return false;}
 
     MTLRenderPipelineDescriptor* pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     pipelineDescriptor.label = @"Triangle Renderer";
-    pipelineDescriptor.vertexFunction = vertexShader;
-    pipelineDescriptor.fragmentFunction = fragmentShader;
+    //pipelineDescriptor.vertexFunction = vertexShader;
+    //pipelineDescriptor.fragmentFunction = fragmentShader;
     if(pipelineDescriptor == nil) {return false;}
     MTLPixelFormat pixelFormat = layer.pixelFormat;
     pipelineDescriptor.colorAttachments[0].pixelFormat = pixelFormat;
 
     NSError* error = nil;
-    pipelineState = [device newRenderPipelineStateWithDescriptor:pipelineDescriptor error:&error];
+    pipelineState = [device newComputePipelineStateWithFunction:computeShader error:&error];
 
-    if(pipelineState == nil) {return false;}
+    if(pipelineState == nil) {
+        NSLog(@"Could not create compute-pipeline: %@", error);
+        return false;
+    }
 
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
@@ -91,6 +106,8 @@ bool initializeMetal(GLFWwindow* window, Scene* scene) {
         length:triangles.size() * sizeof(Triangle)
         options:MTLResourceStorageModeShared
     ];
+
+    if(vertexBuffer == nil || triangleBuffer == nil) {return false;}
 
     return true;
 }

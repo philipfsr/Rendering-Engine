@@ -1,8 +1,7 @@
 #pragma once
 #include "scene/Material.h"
-#include <cstdint>
 
 struct Triangle {
-    std::uint32_t a, b, c;
+    unsigned int a, b, c;
     Material material;
 };

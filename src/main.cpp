@@ -68,6 +68,7 @@ int main() {
 
     std::cout << "Rendering Engine started\n";
 
+    std::cout << "Loading Scene\n";
     if(!loadScene(&scene)) {
         return 1;
     }

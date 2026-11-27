@@ -47,6 +47,27 @@ if(APPLE)
         src/platform/macos/MetalRenderer.mm
     )
 
+    set(METAL_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/metal/compute.metal")
+    set(METAL_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/default.metallib")
+
+    add_custom_command(
+        OUTPUT "${METAL_LIBRARY}"
+
+        COMMAND xcrun -sdk macosx metal
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/src"
+            "${METAL_SOURCE}"
+            -o "${METAL_LIBRARY}"
+
+        DEPENDS
+            "${METAL_SOURCE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/geometry/Vec3D.h"
+
+        VERBATIM
+    )
+
+    add_custom_target(MetalShaders DEPENDS "${METAL_LIBRARY}")
+    add_dependencies(RenderingEngine MetalShaders)
+
 elseif(WIN32)
 
     find_package(Vulkan REQUIRED)

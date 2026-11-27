@@ -6,5 +6,7 @@ struct Camera {
 
     Vec3D origin;
     Vec3D facing;
+    Vec3D up;
+    Vec3D right;
     float fov;
 };
